@@ -16,16 +16,20 @@ func Test_LoadConfig(t *testing.T) {
 		String: "hello",
 		Bool:   false,
 		Struct: Nested{
+			// test fails on TrueBool, since defaults will override "false"
+			// since it assumes that this is the initial struct value and not an external set value
 			TrueBool:  false,
 			FalseBool: true,
 		},
 		Slice: []Nested{
 			{
+				// same here
 				TrueBool:  false,
 				FalseBool: false,
 			},
 			{
-				TrueBool:  false,
+				TrueBool: false,
+				// and here
 				FalseBool: true,
 			},
 		},

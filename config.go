@@ -50,7 +50,7 @@ func LoadConfig() *Config {
 		},
 	})
 
-	// set defaults
+	// TODO: replace "defaults" with a propery way to set defaults only on not initialized struct fields
 	_ = defaults.Set(example)
 
 	return example
