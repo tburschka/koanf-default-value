@@ -1,0 +1,14 @@
+struct:
+  true_bool: false
+  false_bool: true
+slice:
+  - true_bool: false
+    sub_bool:
+      true_bool: false
+      map: "{'a':'x','b':'y','c':'z'}"
+  - true_bool: false
+    false_bool: true
+special:
+  floats: "[ .1, .5 ]"
+  strings: "[ 'abc', 'xyz' ]"
+  map: "{'a':'x','b':'y','c':'z'}"

@@ -5,36 +5,107 @@ import (
 	"testing"
 )
 
-func Test_LoadConfig(t *testing.T) {
-	t.Setenv("APP__STRING", "hello")
+func Test_LoadConfig_Env(t *testing.T) {
 	t.Setenv("APP__STRUCT__TRUE_BOOL", "false")
 	t.Setenv("APP__STRUCT__FALSE_BOOL", "true")
 	t.Setenv("APP__SLICE__0__TRUE_BOOL", "false")
+	t.Setenv("APP__SLICE__0__SUB_BOOL__TRUE_BOOL", "false")
+	t.Setenv("APP__SLICE__1__TRUE_BOOL", "false")
 	t.Setenv("APP__SLICE__1__FALSE_BOOL", "true")
+	t.Setenv("APP__SPECIAL__FLOATS", "[ .1, .5 ]")
+	t.Setenv("APP__SPECIAL__STRINGS", "[ 'abc', 'xyz' ]")
+	t.Setenv("APP__SPECIAL__MAP", "{'a':'x','b':'y','c':'z'}")
 
 	want := &Config{
-		String: "hello",
+		String: "string",
 		Bool:   false,
 		Struct: Nested{
-			// test fails on TrueBool, since defaults will override "false"
-			// since it assumes that this is the initial struct value and not an external set value
 			TrueBool:  false,
 			FalseBool: true,
+			SubBool: SubNested{
+				TrueBool: true,
+				Map:      map[string]string{},
+			},
 		},
 		Slice: []Nested{
 			{
-				// same here
 				TrueBool:  false,
 				FalseBool: false,
+				SubBool: SubNested{
+					TrueBool: false,
+					Map:      map[string]string{},
+				},
 			},
 			{
-				TrueBool: false,
-				// and here
+				TrueBool:  false,
 				FalseBool: true,
+				SubBool: SubNested{
+					TrueBool: true,
+					Map:      map[string]string{},
+				},
 			},
 		},
+		Special: Special{
+			Map: map[string]string{
+				"a": "x",
+				"b": "y",
+				"c": "z",
+			},
+			Floats:  []float64{.1, .5},
+			Strings: []string{"abc", "xyz"},
+		},
 	}
-	cfg := LoadConfig()
+	cfg := LoadConfig("")
+
+	assert.Equal(t, want, cfg, "LoadConfig()")
+}
+
+func Test_LoadConfig_File(t *testing.T) {
+
+	want := &Config{
+		String: "string",
+		Bool:   false,
+		Struct: Nested{
+			TrueBool:  false,
+			FalseBool: true,
+			SubBool: SubNested{
+				TrueBool: true,
+				Map:      map[string]string{},
+			},
+		},
+		Slice: []Nested{
+			{
+				TrueBool:  false,
+				FalseBool: false,
+				SubBool: SubNested{
+					TrueBool: false,
+					Map: map[string]string{
+						"a": "x",
+						"b": "y",
+						"c": "z",
+					},
+				},
+			},
+			{
+				TrueBool:  false,
+				FalseBool: true,
+				SubBool: SubNested{
+					TrueBool: true,
+					Map:      map[string]string{},
+				},
+			},
+		},
+		Special: Special{
+			Map: map[string]string{
+				"a": "x",
+				"b": "y",
+				"c": "z",
+			},
+			Floats:  []float64{.1, .5},
+			Strings: []string{"abc", "xyz"},
+		},
+	}
+	cfg := LoadConfig("config.yml")
 
 	assert.Equal(t, want, cfg, "LoadConfig()")
 }
