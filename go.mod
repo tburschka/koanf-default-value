@@ -3,6 +3,7 @@ module config-debug
 go 1.22
 
 require (
+	dario.cat/mergo v1.0.0
 	github.com/go-viper/mapstructure/v2 v2.0.0-alpha.1
 	github.com/knadh/koanf/parsers/json v0.1.0
 	github.com/knadh/koanf/parsers/yaml v0.1.0

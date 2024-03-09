@@ -5,6 +5,7 @@ import (
 	"config-debug/decodehooks/stringtomap"
 	"config-debug/decodehooks/stringtoslice"
 	"config-debug/providers/env2json"
+	"dario.cat/mergo"
 	"github.com/go-viper/mapstructure/v2"
 	"github.com/knadh/koanf/parsers/json"
 	"github.com/knadh/koanf/parsers/yaml"
@@ -49,13 +50,15 @@ func LoadConfig(name string) *Config {
 
 	k := koanf.New(".")
 
-	_ = k.Load(env2json.Provider(configEnvPrefix, configEnvDelim, func(s string) string {
-		return strings.ToLower(strings.TrimPrefix(s, configEnvPrefix+configEnvDelim))
-	}), json.Parser())
-
 	if name != "" {
 		_ = k.Load(file.Provider(name), yaml.Parser())
 	}
+
+	_ = k.Load(env2json.Provider(configEnvPrefix, configEnvDelim, func(s string) string {
+		return strings.ToLower(strings.TrimPrefix(s, configEnvPrefix+configEnvDelim))
+	}), json.Parser(), koanf.WithMergeFunc(func(src, dest map[string]interface{}) error {
+		return mergo.Merge(&dest, src, mergo.WithSliceDeepCopy)
+	}))
 
 	config := &Config{}
 	_ = k.UnmarshalWithConf("", config, koanf.UnmarshalConf{
